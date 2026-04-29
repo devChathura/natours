@@ -1,0 +1,27 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "A project building to learn Node, Express and MongoDB (MERN Stack)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devChathura/natours.git"
+  },
+  "author": "Chathura Hapukotuwa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devChathura/natours/issues"
+  },
+  "homepage": "https://github.com/devChathura/natours#readme",
+  "dependencies": {
+    "express": "^4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
