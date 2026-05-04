@@ -27,3 +27,6 @@ build/
 
 #used for testing
 app1.js
+
+# Environment variables for development
+config.env
