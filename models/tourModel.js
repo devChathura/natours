@@ -21,6 +21,10 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, 'A tour must have a difficulty'],
     },
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
     price: {
       type: Number,
       required: [true, 'A tour must have a price'],
@@ -68,6 +72,15 @@ tourSchema.pre('save', function () {
 
 tourSchema.post('save', function (doc) {
   console.log(`Saved document: ${doc.slug}`);
+});
+
+tourSchema.pre(/^find/, function () {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+});
+
+tourSchema.post(/^find/, function (docs) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
 });
 
 module.exports = mongoose.model('Tour', tourSchema);
