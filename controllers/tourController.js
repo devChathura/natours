@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 
 // MIDDLEWARE FOR THE ALIASING
 exports.aliasTopTours = (req, res, next) => {
@@ -9,8 +10,13 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
+exports.getAllTours = async (req, res, next) => {
   try {
+    //----------For testing global error handling----------------
+    // -------------ARTIFICIALLY TRIGGER AN ERROR FOR TESTING---------
+    // throw new Error('This is a simulated error');
+    //---------------------------------------------------------------
+
     // create API features instance
     const features = new APIFeatures(Tour.find(), req.query);
     features.filter().sort().limitFields().paginate();
@@ -24,15 +30,11 @@ exports.getAllTours = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-      stack: err.stack,
-    });
+    next(new AppError('Failed to get tours', 500));
   }
 };
 
-exports.getTour = async (req, res) => {
+exports.getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
@@ -42,14 +44,11 @@ exports.getTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(new AppError('Failed to get tour', 500));
   }
 };
 
-exports.createTour = async (req, res) => {
+exports.createTour = async (req, res, next) => {
   try {
     const newTour = await Tour.create(req.body);
     res.status(201).json({
@@ -59,14 +58,11 @@ exports.createTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(new AppError('Failed to create tour', 500));
   }
 };
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = async (req, res, next) => {
   try {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -79,14 +75,11 @@ exports.updateTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(new AppError('Failed to update tour', 500));
   }
 };
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = async (req, res, next) => {
   try {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
@@ -94,14 +87,11 @@ exports.deleteTour = async (req, res) => {
       data: null,
     });
   } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
+    next(new AppError('Failed to delete tour', 500));
   }
 };
 
-exports.getTourStats = async (req, res) => {
+exports.getTourStats = async (req, res, next) => {
   try {
     const stats = await Tour.aggregate([
       {
@@ -129,11 +119,11 @@ exports.getTourStats = async (req, res) => {
       data: { stats },
     });
   } catch (err) {
-    res.status(404).json({ status: 'fail', message: err });
+    next(new AppError('Failed to get tour stats', 500));
   }
 };
 
-exports.getMonthlyPlan = async (req, res) => {
+exports.getMonthlyPlan = async (req, res, next) => {
   try {
     const year = req.params.year * 1;
     const plan = await Tour.aggregate([
@@ -176,9 +166,6 @@ exports.getMonthlyPlan = async (req, res) => {
       data: { plan },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    });
+    next(new AppError('Failed to get monthly plan', 500));
   }
 };
