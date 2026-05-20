@@ -5,7 +5,6 @@ const tourController = require('../controllers/tourController');
 
 router.route('/tour-stats').get(tourController.getTourStats);
 router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
-
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
@@ -22,10 +21,3 @@ router
   .delete(tourController.deleteTour);
 
 module.exports = router;
-
-exports.aliasTopTours = (req, res, next) => {
-  req.query.limit = '5';
-  req.query.sort = '-ratingsAverage,price';
-  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
-  next(); // Don't forget this!
-};
