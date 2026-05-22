@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/devChathura/natours#readme",
   "dependencies": {
+    "argon2": "^0.44.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "express": "^4.22.1",
