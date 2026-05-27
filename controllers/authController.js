@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const { promisify } = require('util');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -57,4 +58,55 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   createSendToken(user, 200, res);
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Extract the token
+  let token;
+  if (
+    // Check the Authorization Header (Mobile App style)
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    // authorization header is in the format: "Bearer token_value"
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    // Check the Cookies (Web Browser style)
+    token = req.cookies.jwt;
+  }
+  // If we couldn't find a token in either place, the user is not logged in.
+  if (!token) {
+    return next(
+      new AppError('You are not logged in! Please log in to get access.', 401),
+    );
+  }
+  // Token found
+  /*
+  // 1. Create the new Promise-based function
+const verifyTokenAsync = promisify(jwt.verify);
+
+// 2. Call the new function with your arguments
+const decoded = await verifyTokenAsync(token, process.env.JWT_SECRET_KEY);
+  */
+  const decoded = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET_KEY,
+  );
+
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
+    return next(
+      new AppError(
+        'The user belonging to this token does no longer exist.',
+        401,
+      ),
+    );
+  }
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password! Please log in again.', 401),
+    );
+  }
+  req.user = currentUser;
+  next();
 });
