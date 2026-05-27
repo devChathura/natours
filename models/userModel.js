@@ -32,17 +32,17 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same!',
     },
   },
+  passwordChangedAt: Date,
 });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   this.password = await argon2.hash(this.password, {
     type: argon2.argon2id,
     memoryCost: 2 ** 16,
     timeCost: 3,
   });
   this.passwordConfirm = undefined;
-  next();
 });
 
 userSchema.methods.correctPassword = async function (
@@ -50,6 +50,18 @@ userSchema.methods.correctPassword = async function (
   userPassword,
 ) {
   return await argon2.verify(userPassword, candidatePassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+    return JWTTimestamp < changedTimestamp;
+  }
+  // Return false if passwordChangedAt is not set
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
