@@ -60,10 +60,36 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select(
+    '+password +loginAttempts +lockUntil',
+  );
 
-  if (!user || !(await user.correctPassword(password, user.password))) {
+  if (!user) {
     return next(new AppError('Incorrect email or password!', 401));
+  }
+
+  if (user.lockUntil && user.lockUntil > Date.now()) {
+    const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / 60000);
+    return next(
+      new AppError(
+        `Account is temporarily locked due to too many failed login attempts. Please try again in ${minutesLeft} minutes.`,
+        423,
+      ),
+    );
+  }
+
+  if (!(await user.correctPassword(password, user.password))) {
+    user.loginAttempts = (user.loginAttempts || 0) + 1;
+    if (user.loginAttempts >= 5) {
+      user.lockUntil = Date.now() + 15 * 60 * 1000;
+    }
+    await user.save({ validateBeforeSave: false });
+    return next(new AppError('Incorrect email or password!', 401));
+  }
+  if (user.loginAttempts > 0 || user.lockUntil) {
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save({ validateBeforeSave: false });
   }
 
   createSendToken(user, 200, req, res);
