@@ -3,7 +3,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
+const sanitizeInputs = require('./utils/sanitize');
 const hpp = require('hpp');
 
 const userRouter = require('./routes/userRoutes');
@@ -40,7 +40,7 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 
 // Data sanitization against XSS
-app.use(xss());
+app.use(sanitizeInputs);
 
 // prevent param pollution
 app.use(
