@@ -19,9 +19,11 @@ Natours is a feature-rich backend infrastructure designed to manage comprehensiv
 - **Complex Data Engineering:**
   - Optimized database operations using MongoDB aggregation pipelines (utilizing up to 7 stages) to calculate real-time tour statistics, ratings, and booking frequencies.
 - **Robust Security Implementation:**
-  - **Authentication:** Modern stateless JWT (JSON Web Token) authentication flow.
+  - **Authentication:** Modern stateless JWT (JSON Web Token) authentication flow with dynamic JSON token delivery to prevent XSS.
   - **Cryptography:** Implemented Argon2 for state-of-the-art password hashing.
-  - **Middleware Defenses:** Architected robust Express security middlewares including Helmet (HTTP headers), rate-limiting (brute-force protection), and NoSQL injection sanitization.
+  - **Threat Mitigation:** Architected NAT-resilient, email-based rate limiting coupled with a persistent database account lockout mechanism to prevent distributed brute-force and credential stuffing attacks.
+  - **Payload Validation:** Enforced "fail-fast" principles and protected against NoSQL injection via strict, request-level schema validation using Zod middleware.
+  - **Middleware Defenses:** Hardened the API with Helmet (secure HTTP headers), MongoDB data sanitization, and HTTP parameter pollution prevention.
 
 ## 🛠 Tech Stack
 
@@ -29,7 +31,7 @@ Natours is a feature-rich backend infrastructure designed to manage comprehensiv
 - **Framework:** Express.js
 - **Database:** MongoDB
 - **ODM:** Mongoose
-- **Security:** JWT, Argon2, Helmet, Express Rate Limit, Mongo Sanitize
+- **Security:** JWT, Argon2, Zod, Helmet, Express Rate Limit, Mongo Sanitize
 
 ## 🚧 Roadmap (Yet To Be Done)
 
@@ -37,7 +39,7 @@ The application is actively being developed with the following features in the p
 
 - [ ] **Complex Data Modeling:** Designing interconnected Mongoose schemas featuring embedding, parent-child referencing, and advanced virtual populate strategies.
 - [ ] **Geospatial Processing:** Leveraging native MongoDB geospatial indexing (`2dsphere`) to unlock location-based radius filtering and proximity calculations.
-- [ ] **Advanced Security Enhancements:** Further fortifying the API against emerging vulnerabilities and refining permission matrices.
+- [ ] **Advanced Security Enhancements:** Implementing CORS origin policies, setting up production-grade logging (Winston), and transitioning to an Access/Refresh Token architecture.
 - [ ] **UI/UX Refinements:** Preparing the backend to serve a highly interactive, server-side rendered or decoupled client application (incorporating visual improvements from pending UI designs).
 - [ ] **Payment Gateway Integration:** Implementing Stripe API for secure, seamless checkout sessions and payment processing.
 - [ ] **Email Handling Services:** Integrating automated email workflows (e.g., SendGrid/Nodemailer) for welcome messages, password resets, and booking confirmations.
