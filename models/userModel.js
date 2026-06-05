@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   lockUntil: Date,
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local',
+  },
   active: {
     type: Boolean,
     default: true,

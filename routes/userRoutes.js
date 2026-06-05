@@ -20,6 +20,12 @@ router.post(
   authController.login,
 );
 router.post(
+  '/auth/google',
+  loginLimiter,
+  validateRequest(authValidation.googleLoginSchema),
+  authController.googleLogin,
+);
+router.post(
   '/forgotPassword',
   loginLimiter,
   validateRequest(authValidation.forgotPasswordSchema),

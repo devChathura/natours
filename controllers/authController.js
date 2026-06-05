@@ -5,6 +5,9 @@ const AppError = require('../utils/appError');
 const { promisify } = require('util');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -90,6 +93,45 @@ exports.login = catchAsync(async (req, res, next) => {
     user.loginAttempts = 0;
     user.lockUntil = undefined;
     await user.save({ validateBeforeSave: false });
+  }
+
+  createSendToken(user, 200, req, res);
+});
+
+exports.googleLogin = catchAsync(async (req, res, next) => {
+  const { idToken } = req.body;
+
+  let ticket;
+  try {
+    ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+  } catch (err) {
+    return next(new AppError('Invalid Google ID token', 401));
+  }
+
+  const payload = ticket.getPayload();
+  const { email, name, picture } = payload;
+
+  let user = await User.findOne({ email }).select('+loginAttempts +lockUntil');
+
+  if (user) {
+    if (user.loginAttempts > 0 || user.lockUntil) {
+      user.loginAttempts = 0;
+      user.lockUntil = undefined;
+      await user.save({ validateBeforeSave: false });
+    }
+  } else {
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    user = await User.create({
+      name,
+      email,
+      photo: picture,
+      password: randomPassword,
+      passwordConfirm: randomPassword,
+      authProvider: 'google',
+    });
   }
 
   createSendToken(user, 200, req, res);

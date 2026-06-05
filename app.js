@@ -10,8 +10,12 @@ const tourRouter = require('./routes/tourRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const sanitizeInputs = require('./utils/sanitize');
+const cors = require('cors');
 
 const app = express();
+
+// Implement CORS - TODO --> CONFIGURE PROPERLY
+app.use(cors());
 
 // 1) GLOBAL MIDDLEWARES
 // Set security HTTP headers

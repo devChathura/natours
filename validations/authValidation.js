@@ -87,3 +87,9 @@ exports.updateMeSchema = z.object({
     email: z.string().email('Invalid email format').optional(),
   }),
 });
+
+exports.googleLoginSchema = z.object({
+  body: z.object({
+    idToken: z.string({ required_error: 'Google ID token is required' }),
+  }),
+});

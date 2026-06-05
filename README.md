@@ -47,23 +47,27 @@ The application is actively being developed with the following features in the p
 ## 💻 Getting Started
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
 - MongoDB (local instance or Atlas URI)
 
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/devChathura/natours.git
    cd natours
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Create a `config.env` file in the root directory and configure the necessary environment variables:
+
    ```env
    NODE_ENV=development
    PORT=3000
