@@ -14,8 +14,16 @@ const cors = require('cors');
 
 const app = express();
 
-// Implement CORS - TODO --> CONFIGURE PROPERLY
-app.use(cors());
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === 'production'
+      ? process.env.FRONTEND_URL
+      : ['http://localhost:3000', 'http://127.0.0.1:5500'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.options('*', cors(corsOptions));
 
 // 1) GLOBAL MIDDLEWARES
 // Set security HTTP headers
