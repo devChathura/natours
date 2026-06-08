@@ -41,6 +41,7 @@ const deleteData = async () => {
 
 // EXECUTE IMPORT OR DELETE FUNCTION BASED ON COMMAND-LINE ARGUMENT
 // When you run a command in the terminal, Node.js stores every part of that command in an array called process.argv. The first element (index 0) is the path to the Node.js executable, and the second element (index 1) is the path to the JavaScript file being executed. Any additional arguments you provide will be stored in subsequent elements of the array.
+// So, when you run the command node import-dev-data.js --import, process.argv[2] will be '--import', and when you run node import-dev-data.js --delete, process.argv[2] will be '--delete'. This allows the script to determine which function to execute based on the provided command-line argument.
 if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
