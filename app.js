@@ -17,8 +17,12 @@ const app = express();
 const corsOptions = {
   origin:
     process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL
-      : ['http://localhost:3000', 'http://127.0.0.1:5500'],
+      ? process.env.FRONTEND_URL || [
+          'http://localhost:3000',
+          'http://127.0.0.1:5500',
+          'null',
+        ]
+      : ['http://localhost:3000', 'http://127.0.0.1:5500', 'null'],
   credentials: true,
 };
 app.use(cors(corsOptions));
