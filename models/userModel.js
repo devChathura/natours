@@ -106,6 +106,11 @@ userSchema.pre(/^find/, function () {
   this.find({ active: { $ne: false } });
 });
 
+userSchema.pre('findOneAndDelete', async function () {
+  const userId = this.getQuery()._id;
+  await mongoose.model('Review').deleteMany({ user: userId });
+});
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
