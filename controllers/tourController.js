@@ -32,7 +32,12 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate({
+    // here path is the name of the virtual populate field in the tourModel, not the name of the review model
+    path: 'reviews',
+    select: 'review rating user',
+    perDocumentLimit: 10,
+  });
   if (!tour) {
     return next(new AppError('No tour found with that ID', 404));
   }

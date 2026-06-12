@@ -1,4 +1,5 @@
 const express = require('express');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 const tourController = require('../controllers/tourController');
@@ -9,6 +10,8 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
+
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/')
