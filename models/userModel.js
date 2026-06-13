@@ -3,61 +3,93 @@ const validator = require('validator');
 const argon2 = require('argon2');
 const crypto = require('crypto');
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A user must have a name'],
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: [true, 'A user must have an email'],
-    unique: [true, 'Already exists an account with this email'],
-    lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email'],
-  },
-  role: {
-    type: String,
-    enum: ['user', 'guide', 'lead-guide', 'admin'],
-    default: 'user',
-  },
-  photo: String,
-  password: {
-    type: String,
-    required: [true, 'A user must have a password'],
-    minlength: [8, 'A password must have more or equal than 8 characters'],
-    select: false,
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, 'Please confirm your password'],
-    validate: {
-      validator: function (el) {
-        return el === this.password;
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'A user must have a name'],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'A user must have an email'],
+      unique: [true, 'Already exists an account with this email'],
+      lowercase: true,
+      validate: [validator.isEmail, 'Please provide a valid email'],
+    },
+    role: {
+      type: String,
+      enum: ['user', 'guide', 'lead-guide', 'admin'],
+      default: 'user',
+    },
+    photo: String,
+    password: {
+      type: String,
+      required: [true, 'A user must have a password'],
+      minlength: [8, 'A password must have more or equal than 8 characters'],
+      select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm your password'],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: 'Passwords are not the same!',
       },
-      message: 'Passwords are not the same!',
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    loginAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+    lockUntil: Date,
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
     },
   },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  loginAttempts: {
-    type: Number,
-    default: 0,
-    select: false,
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        delete ret.password;
+        delete ret.passwordConfirm;
+        delete ret.passwordChangedAt;
+        delete ret.passwordResetToken;
+        delete ret.passwordResetExpires;
+        delete ret.loginAttempts;
+        delete ret.lockUntil;
+        delete ret.active;
+        delete ret.__v;
+        return ret;
+      },
+    },
+    toObject: {
+      transform: function (doc, ret) {
+        delete ret.password;
+        delete ret.passwordConfirm;
+        delete ret.passwordChangedAt;
+        delete ret.passwordResetToken;
+        delete ret.passwordResetExpires;
+        delete ret.loginAttempts;
+        delete ret.lockUntil;
+        delete ret.active;
+        delete ret.__v;
+        return ret;
+      },
+    },
   },
-  lockUntil: Date,
-  authProvider: {
-    type: String,
-    enum: ['local', 'google'],
-    default: 'local',
-  },
-  active: {
-    type: Boolean,
-    default: true,
-    select: false,
-  },
-});
+);
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
