@@ -68,19 +68,17 @@ router.patch(
 router.delete('/deleteMe', authController.protect, authController.deleteUser);
 
 // Routes for system Admins
-// TODO:apply authController.protect and authController.restrictTo('admin') middlewares
+router.use(authController.protect, authController.restrictTo('admin'));
+
 router
   .route('/')
   .get(userController.getAllUsers)
   .post(userController.createUser);
+
 router
   .route('/:id')
   .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin'),
-    userController.deleteUser,
-  );
+  .patch(userController.preventPasswordUpdateAdmin, userController.updateUser)
+  .delete(userController.deleteUser);
 
 module.exports = router;
