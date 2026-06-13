@@ -1,5 +1,30 @@
 const Review = require('../models/reviewModel');
 const factory = require('./handlerFactory');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+
+exports.checkReviewOwnership = catchAsync(async (req, res, next) => {
+  const review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(new AppError('No review found with that ID', 404));
+  }
+  if (req.user.role === 'admin') {
+    return next();
+  }
+
+  const reviewUserId = review.user.id || review.user.toString();
+  if (reviewUserId !== req.user.id) {
+    return next(
+      new AppError(
+        'You do not have permission to edit or delete this review',
+        403,
+      ),
+    );
+  }
+
+  next();
+});
 
 exports.setTourUserIds = (req, res, next) => {
   // This function mutates the req.body and passes it forward.

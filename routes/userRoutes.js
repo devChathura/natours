@@ -48,34 +48,29 @@ router.patch(
   authController.resetPassword,
 );
 
+router.use(authController.protect);
+
 // Update Password Route
 router.patch(
   '/updateMyPassword',
-  authController.protect,
   validateRequest(authValidation.updatePasswordSchema),
   authController.updatePassword,
 );
 
-router.get(
-  '/me',
-  authController.protect,
-  userController.getMe,
-  userController.getUser,
-);
+router.get('/me', userController.getMe, userController.getUser);
 
 // Update User
 router.patch(
   '/updateMe',
-  authController.protect,
   validateRequest(authValidation.updateMeSchema),
   userController.updateMe,
 );
 
 // Delete User
-router.delete('/deleteMe', authController.protect, authController.deleteUser);
+router.delete('/deleteMe', authController.deleteUser);
 
 // Routes for system Admins
-router.use(authController.protect, authController.restrictTo('admin'));
+router.use(authController.restrictTo('admin'));
 
 router
   .route('/')
